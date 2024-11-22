@@ -1,0 +1,19 @@
+train: "images/train"
+val: "images/valid"
+test: "images/test"
+
+nc: 13
+names: 
+  0: worker
+  1: suspended load
+  2: static crane
+  3: crane
+  4: roller
+  5: bulldozer
+  6: excavator
+  7: truck
+  8: loader
+  9: pump truck
+  10: concrete mixer
+  11: pile driving
+  12: forklift

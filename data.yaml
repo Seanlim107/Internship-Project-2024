@@ -1,0 +1,20 @@
+path: "Validation"
+train: "images/train"
+val: "images/val"
+
+names:
+  0: Worker
+  1: Suspended Load
+  2: Static Crane
+  3: Crane
+  4: Roller
+  5: Bulldozer
+  6: Excavator
+  7: Truck
+  8: Loader
+  9: Pump Truck
+  10: Concrete Mixer
+  11: Pile Driving
+  12: Forklift
+
+

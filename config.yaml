@@ -1,0 +1,121 @@
+General:
+  seed: 8
+  
+  
+  safe_dist: 10 # Safe Distance parameter in meters
+  use_cam: True
+  use_scale: False
+  enable_wandb: False
+  clip_boxes: True
+  debug: False
+  
+Models:
+  epochs: 200
+
+  # copy and paste the following networks to modify the backbone structure (case sensitive)
+  # <5M Params: efficientnet_b0,  MNASNet1_0, MobileNet_V2, MobileNet_V3_Small_Weights, ShuffleNet_V2_X1_5
+  # 5M - 20M Params: efficientnet_b2, GoogLeNet, MobileNet_V3_Large_Weights, efficientnet_b4
+  # >20M Params: efficientnet_v2_S_Weights
+  3d_guesser_backbone: MobileNet_V2
+  3d_guesser_proposals: 32
+  3d_guesser_classification: True
+  # rpn:
+  #   num_filters1: 512
+  #   num_filters2: 512
+  #   num_anchors: 64
+  
+  
+Dataset:
+  #Reduce to 1 if receiving error : "torch.OutOfMemoryError: CUDA out of memory. ......."
+  batch_size: 16
+  Construction:
+    resize_size: 960 # Resized size to be kept consistent throughout YOLO training and model testing
+    crop_size: 960
+    init: False
+    main_dir: Construction Dataset
+    img_dir_name: Images
+    lab_dir_name: Labels
+    Batch_dir_name: Batch
+    start_batch_num: 6
+    end_batch_num: 6
+
+    train_size: 0.8
+    test_size: 0.1
+    valid_size: 0.1
+
+    img_ext: .jpg
+    label_ext: .txt
+
+    moving_dir: datasets
+  MOCS:
+    resize_size: 960 # Resized size to be kept consistent throughout YOLO training and model testing
+    main_dir: MOCS
+    moving_dir: datasets
+
+    # 0 = segmentation, 1 = bounding box
+    yolo_type: 0
+
+    img_ext: .jpg
+    label_ext: .txt
+
+    
+Yolo:
+  resize_size: 960
+  epochs: 1000
+  batch: 8
+VP_Detector:
+  length_thresh: 40
+  principal_point: None
+  focal_length: 1500
+Camera:
+  # Distance_from_ground: 24 #Distance of camera from ground in meters
+  remove_fisheye: False
+
+  # Use own = manually set fx fy cx cy, vs using W/2, H/2, W, H as fx fy cx cy
+  use_own: True
+  fx: 80
+  fy: 80
+  cx: 320
+  cy: 320
+  distortion_coef: [0.0001, 0, 0, 0]
+Classes: #Dimensions in Length, Width, Height
+  0: # https://designthesis.wordpress.com/2020/01/05/human-dimensions-and-minimum-standards/
+    name: worker
+    dimensions: [0.5, 0.66, 1.74] 
+  1:
+    name: suspended load
+    dimensions: [1.2, 1.2, 1.2]
+  2: # https://www.terranova.co.uk/mobile-crane-hire/vehicle-specs-cranes/
+    name: static crane
+    dimensions: [3.5, 3.5, 17.4]
+  3: # https://www.okorder.com/p/fhtt2800a-tower-crane_527461.html
+    name: crane
+    dimensions: [3, 2, 5]
+  4: # https://www.kayleigh.co.uk/rollers/
+    name: roller
+    dimensions: [3.5, 2, 2.71]
+  5: # https://sinoway-sh.en.made-in-china.com/product/ReImWuJvHiVN/China-25-5ton-Operating-Weight-Bulldozer-with-220HP-Cummins-Engine.html
+    name: bulldozer
+    dimensions: [3.95, 2.25, 3.75]
+  6: # https://www.china-constructionmachinery.com/china-hydraulic-excavator.html
+    name: excavator
+    dimensions: [5, 2.915, 3.2]
+  7: # https://www.tidan-vehicle-rentals.com/trucks-vans-dimensions-1
+    name: truck
+    dimensions: [9.63, 2.85, 3.11]
+  8: # https://www.china-constructionmachinery.com/wheel-loader-suppliers.html
+    name: loader
+    dimensions: [5.1, 1.7, 2.5]
+  9: # https://www.midlandpallettrucks.com/products/hand-pallet-trucks/2500kg-2-5t-capacity-540-x-1150-mm/
+    name: pump truck
+    dimensions: [3.5, 1.23, 2.235]
+  10: # https://www.derbyshireconcrete.co.uk/content/dimensions
+    name: concrete mixer
+    dimensions: [6, 3.1, 4]
+  11: # https://www.vermeer.com/getmedia/c304efff-a856-4cf3-b160-a98bf52fdedc/pd5r-pile-driver-spec-sheet-updated?ext=.pdf
+    name: pile driving
+    dimensions: [2.2, 3.8, 4.7]
+  12: # https://forkliftking.com.au/king-35-fl-specs
+    name: forklift
+    dimensions: [5.8, 2.42, 3.05]
+
