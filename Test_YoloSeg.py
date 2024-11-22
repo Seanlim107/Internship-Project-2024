@@ -77,16 +77,6 @@ def evaluate_yolo_bbox_performance(ground_truths, predictions, iou_threshold=0.5
     precision = true_positives / (true_positives + false_positives) if (true_positives + false_positives) > 0 else 0
     recall = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) > 0 else 0
     avg_iou = np.mean(iou_scores) if iou_scores else 0
-    # In practice, mAP calculation can be more complex and may require considering multiple IoU thresholds.
-
-    # return {
-    #     'precision': precision,
-    #     'recall': recall,
-    #     'avg_iou': avg_iou,
-    #     'true_positives': true_positives,
-    #     'false_positives': false_positives,
-    #     'false_negatives': false_negatives
-    # }
     
     return precision, recall, avg_iou, true_positives, false_positives, false_negatives
     
@@ -98,15 +88,8 @@ def main(config):
     model = YOLO(weightpath)
     
     # mocsy = MOCSDataset(config, split='test')
-    # # # print(len(mocsy))
-    
-    # params = {'batch_size': batch_size,
-    #             'shuffle':True,
-    #             'num_workers': 6}
-    # torch.manual_seed(config['General']['seed'])
-    # generator = data.DataLoader(mocsy, **params)
 
-    # for image, target, image_tensor in generator:
+    # for image, target, image_tensor in mocsy:
     #     # print(image_tensor)
     #     predictions = model(image_tensor, imgsz=resize_size)
     #     # print(predictions)
@@ -126,15 +109,9 @@ def main(config):
     
     total_precision, total_recall, total_avg_iou, total_true_positives, total_false_positives, total_false_negatives = 0,0,0,0,0,0
         
+    # Iterate through images and labels and calculate metrics (also show images and segmentation if need be)
     for (indexed_img_tensor, indexed_ori_img, indexed_label, indexed_pair) in generator:
-        temp_img = indexed_img_tensor
-        # print(temp_img)
-        temp_img_ori = np.array(indexed_ori_img)
-        
-        # print(temp_img_ori.shape)
-        
-        # cam = Camera(use_own = config_cam['use_own'], img=temp_img_ori, distortion_coef=config_cam['distortion_coef'], fx=config_cam['fx'], fy=config_cam['fy'], cx=config_cam['cx'], cy=config_cam['cy'])
-        
+
         indexed_img_path, indexed_label_path = indexed_pair
         with torch.no_grad():
             results = model(indexed_img_path)
@@ -161,15 +138,13 @@ def main(config):
         total_false_positives+=false_positives
         total_false_negatives+=false_negatives
         
-        # # Plot original Image with Yolo Detection    
-        # annotatedImage = results[0].plot()
-        # annotatedImageRGB = cv2.cvtColor(annotatedImage, cv2.COLOR_BGR2RGB)
-        # # ax.imshow(annotatedImageRGB)
-        # plt.imshow(annotatedImageRGB)
-        # # plt.show(block=False)
-        # plt.show()
-        # plt.pause(1)
-        # plt.clf()
+        # Plot original Image with Yolo Detection    
+        annotatedImage = results[0].plot()
+        annotatedImageRGB = cv2.cvtColor(annotatedImage, cv2.COLOR_BGR2RGB)
+        plt.imshow(annotatedImageRGB)
+        plt.show()
+        plt.pause(1)
+        plt.clf()
         
     total_len = len(generator)
     avg_precision = total_precision/total_len
