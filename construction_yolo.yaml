@@ -1,3 +1,4 @@
+# Configuration code for training YOLO detection model on ACSD dataset
 train: "images/train"
 val: "images/valid"
 test: "images/test"

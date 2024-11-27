@@ -3,6 +3,11 @@ from lib.utils import parse_yaml
 import numpy as np
 import cv2
 
+############################################################################################################################################################
+# Note: This code is currently not available to be run due to requiring the MOCS dataset which is too big to be uploaded in the GitHub repository
+# Code for reformatting the MOCS dataset structure to fit the requirements of YOLO
+############################################################################################################################################################
+
 
 def main(config):
     config = parse_yaml('config.yaml')

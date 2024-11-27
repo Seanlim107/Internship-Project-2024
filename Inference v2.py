@@ -18,10 +18,16 @@ from lib_3D.Plotting import *
 import re
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+print(device)
+
+####################################################################################################################################################################################################
+# Note: This code is currently not available to be run due to requiring the ACSD dataset which is not provided as per company restrictions with sensitive data
+# The following code is used for testing OriDim on ACSD dataset
+# Creates 2D bounding box using YOLO, cropped images from YOLO's bounding box is fed into OriDim to guess dimensions and orientation
+####################################################################################################################################################################################################
 
 
 def main(config):
-    print(device)
     #Initialization
     filedir = os.path.dirname(__file__)
     best_loss = float('inf')
@@ -30,7 +36,7 @@ def main(config):
     use_scale = config['General']['use_scale']
     use_cam = config['General']['use_cam']
     
-   # Initialise dataset stuff
+   # Initialise dataset variables
     batch_size = 1 
     danger_levels = [safe_distancing/3*(i+1) for i in range(3)]
     seed = config['General']['seed']
@@ -47,29 +53,31 @@ def main(config):
     if(seed is not None):
       torch.manual_seed(config['General']['seed'])
     generator = data.DataLoader(consDataset, **params)
-    
-    # Initialise trainng stuff
+
+    # Initialise YOLO variables
     weightpath = os.path.join(filedir, 'runs/detect/train3/weights/best.pt')
     yolo = YOLO(weightpath)
     yolo.eval()
 
+    # Initialise backbone
     backbone_name = config['Models']['3d_guesser_backbone']
     model = BB_Guesser_Model(config, backbone_name=backbone_name, angles=num_angles, proposals=1, resize_size=crop_size)
     model.eval()
     model = model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
+    
     if (classification):
       ori_name = f'3D_Guesser_Train_{backbone_name}_classification_{num_angles}bins'
       bins = create_bins(num_bins=num_angles)
     else:
       ori_name = f'3D_Guesser_Train_{backbone_name}_regression'
 
+    # Filter for latest checkpoint depending on configuration
     r = re.compile(f'^{ori_name}')
     checkpointdir = os.path.join(filedir, 'checkpoints')
     list_ckpts = os.listdir(checkpointdir)
     newlist = list(filter(r.match, list_ckpts))
     config_cam = config['Camera']
-    
     
     if len(newlist) > 0:
       newlist = [ckpt.split('_')[-1] for ckpt in newlist]
@@ -80,9 +88,12 @@ def main(config):
       best_loss, ckpt_epoch = load_checkpoint(model, best_path, optimizer)
     else:
       raise Exception('No checkpoint detected')
+    
     my_vpd = VPD(config)
     lookup = config['Classes']
     time_set = 0 
+    
+    
     for (indexed_img_tensor, indexed_ori_img, indexed_label, indexed_pair) in generator:
       img_path, label_path = indexed_pair
       cam = Camera(use_own = config_cam['use_own'], img=indexed_ori_img, distortion_coef=config_cam['distortion_coef'], fx=config_cam['fx'], fy=config_cam['fy'], cx=config_cam['cx'], cy=config_cam['cy'])
@@ -94,7 +105,7 @@ def main(config):
       list_nonworkers2 = []
 
       
-      
+      # Loads camera matrix
       with torch.no_grad():
         detections = yolo(img_path, imgsz=resize_size, agnostic_nms=True)
       calib_file = "calib_cam_to_cam.txt"
@@ -158,7 +169,7 @@ def main(config):
               list_nonworkers2.append((detect_conf, location, detect_class, box, dim, corners_3d, alpha, box_2d, box3d))
       
 
-
+      # Compares exactly 1 worker and 1 non worker for each iteration
       if(len(list_nonworkers2) > 0 and len(list_workers2) > 0):
           if(use_scale):
             scale_total = 0

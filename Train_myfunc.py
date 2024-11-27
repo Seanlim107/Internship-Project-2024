@@ -1,7 +1,5 @@
 from lib.Dataset import ConstructionDataset
-# from lib.Camera import Camera
 from lib.utils import parse_yaml, get_angle, save_checkpoint, load_checkpoint
-# from lib.loss import Custom_Loss
 from lib.VP_Detector import VPD
 from torchvision.models import vgg, alexnet, efficientnet_b0
 from my_model.Model import BB_Guesser_Model
@@ -11,30 +9,30 @@ import os
 import cv2
 import re
 from torch.utils.data import random_split
-# import pandas as pd
 import matplotlib.pyplot as plt
 from torch.utils import data
 import numpy as np
 from lib.train import train_loop, evaluate
 import wandb
-# set PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-# import tensorflow as tf
-# import torchvision.models as models
-# import torch.nn as nn
-# device = torch.device('cpu')
+
 if torch.cuda.is_available():
   torch.cuda.empty_cache()
   device = torch.device('cuda') 
 else: 
   device = torch.device('cpu')
+print(device)
+
+####################################################################################################################################################################################################
+# The following code is used to train the OriDim model based on configuration parameters in config.yaml
+# Note: Code is not available to be run at the moment due to the ACSD dataset being prohibited to be distributed as per company restrictions on data sensitivity 
+####################################################################################################################################################################################################
 
 
 def main(config):
-    print(device)
     #Initialization
     filedir = os.path.dirname(__file__)
 
-   # Initialise dataset stuff
+   # Initialise dataset variables
     config_dataset = config['Dataset']
     config_cons = config_dataset['Construction']
     batch_size = config_dataset['batch_size'] # Only for testing purposes
@@ -47,19 +45,25 @@ def main(config):
     is_classification = config['Models']['3d_guesser_classification']
     classification = classification_set[is_classification]
     
+    # Load up ACSD dataset
     consDataset = ConstructionDataset(config, crops=True)
     params = {'batch_size': batch_size,
                 'shuffle':True,
                 'num_workers': 6}
+    
+    # Set random seed
     if(seed is not None):
       torch.manual_seed(seed)
-    # generator = data.DataLoader(consDataset, **params)
     gen_seed = torch.Generator().manual_seed(seed)
+    
+    # Split dataset
     train_data, test_data, valid_data = random_split(consDataset, set_sizes, generator=gen_seed)
     train_generator = data.DataLoader(train_data, **params)
     test_generator = data.DataLoader(test_data, **params)
     valid_generator = data.DataLoader(valid_data, **params)
     num_angles = config['Models']['3d_guesser_proposals']
+    
+    # Set wandb
     if(enable_wandb):
       if not is_classification:
         run = wandb.init(project='Construction_3D', name=f'logger-3Dim_1Orient_{backbone_name}_{classification}_{num_angles}bins')
@@ -79,9 +83,11 @@ def main(config):
           
     r = re.compile(f'^{ori_name}')
 
+    # Load checkpoints
     checkpointdir = os.path.join(filedir, 'checkpoints')
     list_ckpts = os.listdir(checkpointdir)
     newlist = list(filter(r.match, list_ckpts))
+    
     if len(newlist) > 0:
       newlist = [ckpt.split('_')[-1] for ckpt in newlist]
       newlist_num = str(max([int(ckpt.split('.pth')[0]) for ckpt in newlist])) 
@@ -95,9 +101,8 @@ def main(config):
       print('No file deteced, starting from scratch')
       ckpt_epoch=0
     
-    
     model=model.to(device)
-
+    
     for epoch in range(ckpt_epoch, num_epochs):
       train_epoch_avg_loss, train_epoch_avg_loss_ang, train_epoch_avg_loss_dim = train_loop(epoch, train_generator, model, loss_fn, device, optimizer, num_bins=num_angles, num_proposals=1, batch_size=batch_size, classification=is_classification)
       test_epoch_avg_loss, test_epoch_avg_loss_ang, test_epoch_avg_loss_dim = evaluate(epoch, test_generator, model, loss_fn, device, num_bins=num_angles, num_proposals=1, batch_size=batch_size, classification=is_classification)
@@ -119,41 +124,7 @@ def main(config):
         save_checkpoint(epoch, model, ori_name, optimizer, train_epoch_avg_loss)
         best_loss = test_epoch_avg_loss
         print(f'Saving Checkpoint at epoch {epoch}')
-          
-        # if test_epoch_avg_loss < best_loss:
-        #   save_checkpoint(epoch, model, '3D_Guesser_Train', optimizer, train_epoch_avg_loss)
-        #   best_loss = train_epoch_avg_loss
-          
-            
-  
-      # print(total_loss)
-      # print(indexed_clas)
-      # print('box',indexed_box2d[0]*960, indexed_box2d[1]*960)
-      # print('vps',vps_2d)
-      # print(vps_3d)
-      # print('orient1',indexed_orientation)
-      # print('orient2',indexed_orientation/np.pi*180)
 
-      # v1,v2,v3 = vps_2d[0]
-      # x_cent, y_cent, box_width, box_height = indexed_box2d
-      # height, width = indexed_ori_img.shape[1:3]
-      # print(indexed_orientation)
-      # print(indexed_dims)
-      
-      # my_vpd.draw_grid(plot_image, v1,v2,v3, 10)
-      
-      
-      
-      # x,y,x2,y2 = np.array([indexed_box2d[0]-indexed_box2d[2]/2, indexed_box2d[1]-indexed_box2d[3]/2, indexed_box2d[0]+indexed_box2d[2]/2,indexed_box2d[1]+indexed_box2d[3]/2])*960
-      # print(x,y,x2,y2)
-      # cv2.rectangle(plot_image, (int(x[0]), int(y[0])), (int(x2[0]), int(y2)), (0, 0, 0), 5, cv2.LINE_AA)
-      # plt.subplot(121)
-      # plt.imshow(plot_image)
-      # plt.subplot(122)
-      # plt.imshow(plot_crop)
-      # plt.show()
-    
-        
         
 if __name__=='__main__':
     config=parse_yaml('config.yaml')

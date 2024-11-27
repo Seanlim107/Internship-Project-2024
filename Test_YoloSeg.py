@@ -14,30 +14,31 @@ from ultralytics import YOLO
 import torch
 from lib.utils import find_xyxy
 
+
+############################################################################################################################################################
+# Note: This code is currently not available to be run due to requiring the ACSD dataset which is not provided as per company restrictions with sensitive data
+# Code for testing the performance of training the YOLO Segmentation model and testing on the ACSD dataset
+# Runs similar to Inference v2
+# Additional functions, iou and evaluate_yolo_bbox_performance to localise the segmentation model to the ACSD dataset bounding box for comparisions
+############################################################################################################################################################
+
+# Calculates iou
 def iou(boxA, boxB):
-    """
-    Compute the Intersection over Union (IoU) between two bounding boxes.
-    boxA: Ground truth bounding box (x1, y1, x2, y2)
-    boxB: Predicted bounding box (x1, y1, x2, y2)
-    """
     # Coordinates of intersection box
-    xA = max(boxA[0], boxB[0])
-    yA = max(boxA[1], boxB[1])
-    xB = min(boxA[2], boxB[2])
-    yB = min(boxA[3], boxB[3])
+    x1 = max(boxA[0], boxB[0])
+    y1 = max(boxA[1], boxB[1])
+    x2 = min(boxA[2], boxB[2])
+    y2 = min(boxA[3], boxB[3])
 
-    # Area of intersection
-    interArea = max(0, xB - xA + 1) * max(0, yB - yA + 1)
-
-    # Area of both boxes
+    inner = max(0, x2 - x1 + 1) * max(0, y2 - y1 + 1)
     boxAArea = (boxA[2] - boxA[0] + 1) * (boxA[3] - boxA[1] + 1)
     boxBArea = (boxB[2] - boxB[0] + 1) * (boxB[3] - boxB[1] + 1)
 
-    # Compute IoU
-    iou = interArea / float(boxAArea + boxBArea - interArea)
+    iou = inner / float(boxAArea + boxBArea - inner)
 
     return iou
 
+# Function to calculate yolo segmentation performance
 def evaluate_yolo_bbox_performance(ground_truths, predictions, iou_threshold=0.5):
     true_positives = 0
     false_positives = 0
@@ -58,7 +59,6 @@ def evaluate_yolo_bbox_performance(ground_truths, predictions, iou_threshold=0.5
                 best_iou = iou_score
                 best_gt_box = tuple(gt_box.reshape(4))
         
-        # If best IoU is above threshold, it's a true positive
         if best_iou >= iou_threshold:
             
             if best_gt_box not in matched_gt_boxes:
@@ -66,11 +66,10 @@ def evaluate_yolo_bbox_performance(ground_truths, predictions, iou_threshold=0.5
                 matched_gt_boxes.add(best_gt_box)
                 iou_scores.append(best_iou)
             else:
-                false_positives += 1  # Double match for the same ground truth box
+                false_positives += 1
         else:
-            false_positives += 1  # Predicted box did not match sufficiently
+            false_positives += 1
 
-    # Count false negatives (unmatched ground truth boxes)
     false_negatives += len(gt_boxes_xyxy) - len(matched_gt_boxes)
 
     # Calculate metrics
@@ -87,25 +86,19 @@ def main(config):
     weightpath = os.path.join(filedir, 'runs/segment/train2/weights/best.pt')
     model = YOLO(weightpath)
     
-    # mocsy = MOCSDataset(config, split='test')
-
-    # for image, target, image_tensor in mocsy:
-    #     # print(image_tensor)
-    #     predictions = model(image_tensor, imgsz=resize_size)
-    #     # print(predictions)
-    #     annotatedImage = predictions[0].plot()
-    #     annotatedImageRGB = cv2.cvtColor(annotatedImage, cv2.COLOR_BGR2RGB)
-    #     # ax.imshow(annotatedImageRGB)
-    #     plt.imshow(annotatedImageRGB)
-    #     plt.show()
-        
-    consDataset = ConstructionDataset(config, crops=False)
-    
     params = {'batch_size': 1,
                 'shuffle': True,
                 'num_workers': 6}
     torch.manual_seed(config['General']['seed'])
+    
+    
+    # Uncomment mocsy and comment consDataset to see performance on MOCS dataset instead
+    # mocsy = MOCSDataset(config, split='test')
+    # generator = data.DataLoader(mocsy, **params)
+    
+    consDataset = ConstructionDataset(config, crops=False)
     generator = data.DataLoader(consDataset, **params)
+    
     
     total_precision, total_recall, total_avg_iou, total_true_positives, total_false_positives, total_false_negatives = 0,0,0,0,0,0
         

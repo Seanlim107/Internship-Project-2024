@@ -1,3 +1,4 @@
+# Configuration code for training YOLO detection model on validation dataset
 path: "Validation"
 train: "images/train"
 val: "images/val"

@@ -1,23 +1,10 @@
+# Code for training YOLO Segmentation on MOCS dataset
 train: "images/train"
 val: "images/valid"
 test: "images/test"
 path: datasets
 
 # nc: 13  # number of classes
-# names: 
-#   1: Worker
-#   2: Tower Crane
-#   3: Hanging Hook
-#   4: Truck Crane
-#   5: Roller
-#   6: Bulldozer
-#   7: Excavator
-#   8: Truck
-#   9: Loader
-#   10: Pump truck
-#   11: Concrete Truck
-#   12: Pile Driver
-#   13: Other Vehicle
 names: 
   - Worker
   - Tower Crane

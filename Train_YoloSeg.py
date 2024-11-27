@@ -7,6 +7,13 @@ import numpy as np
 import cv2
 from ultralytics import YOLO
 
+
+############################################################################################################################################################
+# Note: This code is currently not available to be run due to requiring the MOCS dataset which is too big to be uploaded in the GitHub repository
+# Code for training the YOLO Segmentation model
+############################################################################################################################################################
+
+
 def main(config):
     #Initialization
     model = YOLO("yolov8n-seg.pt")

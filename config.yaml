@@ -1,7 +1,6 @@
 General:
-  seed: 8
-  
-  
+  seed: 8 # seed used for everything that involves RNG
+
   safe_dist: 10 # Safe Distance parameter in meters
   use_cam: True
   use_scale: False
@@ -13,17 +12,14 @@ Models:
   epochs: 200
 
   # copy and paste the following networks to modify the backbone structure (case sensitive)
-  # <5M Params: efficientnet_b0,  MNASNet1_0, MobileNet_V2, MobileNet_V3_Small_Weights, ShuffleNet_V2_X1_5
-  # 5M - 20M Params: efficientnet_b2, GoogLeNet, MobileNet_V3_Large_Weights, efficientnet_b4
-  # >20M Params: efficientnet_v2_S_Weights
+  # <5M Params: efficientnet_b0,  MNASNet1_0, MobileNet_V2
+  # 5M - 20M Params: efficientnet_b2
+
+  # Available proposals: 8, 32
+  # Available classification parameters: True/False
   3d_guesser_backbone: MobileNet_V2
   3d_guesser_proposals: 32
   3d_guesser_classification: True
-  # rpn:
-  #   num_filters1: 512
-  #   num_filters2: 512
-  #   num_anchors: 64
-  
   
 Dataset:
   #Reduce to 1 if receiving error : "torch.OutOfMemoryError: CUDA out of memory. ......."
@@ -32,12 +28,14 @@ Dataset:
     resize_size: 960 # Resized size to be kept consistent throughout YOLO training and model testing
     crop_size: 960
     init: False
+
+    # Do not change any of this unless necessary
     main_dir: Construction Dataset
     img_dir_name: Images
     lab_dir_name: Labels
     Batch_dir_name: Batch
-    start_batch_num: 6
-    end_batch_num: 6
+    start_batch_num: 1
+    end_batch_num: 5
 
     train_size: 0.8
     test_size: 0.1
@@ -52,9 +50,6 @@ Dataset:
     main_dir: MOCS
     moving_dir: datasets
 
-    # 0 = segmentation, 1 = bounding box
-    yolo_type: 0
-
     img_ext: .jpg
     label_ext: .txt
 
@@ -68,8 +63,7 @@ VP_Detector:
   principal_point: None
   focal_length: 1500
 Camera:
-  # Distance_from_ground: 24 #Distance of camera from ground in meters
-  remove_fisheye: False
+  remove_fisheye: True
 
   # Use own = manually set fx fy cx cy, vs using W/2, H/2, W, H as fx fy cx cy
   use_own: True
@@ -78,7 +72,8 @@ Camera:
   cx: 320
   cy: 320
   distortion_coef: [0.0001, 0, 0, 0]
-Classes: #Dimensions in Length, Width, Height
+
+Classes: #Dimensions in order of Length, Width, Height
   0: # https://designthesis.wordpress.com/2020/01/05/human-dimensions-and-minimum-standards/
     name: worker
     dimensions: [0.5, 0.66, 1.74] 

@@ -1,6 +1,12 @@
 from lib.Dataset import ConstructionDataset
 from lib.utils import parse_yaml
 
+############################################################################################################################################################
+# Note: This code is currently not available to be run due to requiring the ACSD dataset which is not provided as per company restrictions with sensitive data
+# Code for reformatting the ACSD dataset to fit YOLO requirements
+############################################################################################################################################################
+
+
 def main(config):
     config_yoloprep = config['Dataset']['Construction']
     mainpath = config_yoloprep['main_dir']
