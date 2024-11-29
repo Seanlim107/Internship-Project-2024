@@ -10,13 +10,15 @@ import torch
 from lib.VP_Detector import VPD
 from lib.utils import get_angle, create_bins, get_bin
 
+
+###############################################################################
+# The following code is used for accessing the ACSD dataset
+# Code is currently not available due to the ACSD dataset not provided in this repository
+###############################################################################
+
 class ConstructionDataset(data.Dataset):
     def __init__(self, config, crops=True):
         self.filedir = os.path.dirname(os.path.dirname(__file__))
-        # # print(self.filedir)
-        
-        # self.images_dir = os.path.join(mainpath, imgdirname)
-        # self.labels_dir = os.path.join(mainpath, labeldirname)
         
         config_yoloprep = config['Dataset']['Construction']
         mainpath = config_yoloprep['main_dir']
@@ -127,14 +129,14 @@ class ConstructionDataset(data.Dataset):
             indexed_box2d   = self.obj_list[index][1]
             indexed_crop    = self.getcrop(indexed_ori_img_path, indexed_box2d)
             indexed_crop_tensor = self.format_crop(indexed_crop)
-            # print(f"Loading image from path: {indexed_ori_img_path}")
+
             vps_3d = self.vpd.get_vanishing_points(indexed_ori_img)
             vps_2d = self.vpd.get_vanishing_points_2d(indexed_ori_img)
             
             new_vps_2d, new_vps_3d = self.vpd.get_vp_loc(indexed_ori_img, vps_2d, vps_3d)
             new_vps_2d = new_vps_2d
             v1, v2, v3 = new_vps_2d
-            # print(width, height)
+
             x_cent, y_cent, box_width, box_height = indexed_box2d
             indexed_yaw = get_angle(torch.Tensor([x_cent, y_cent])*torch.Tensor([width,height]), torch.Tensor(v1)) + np.pi
             indexed_roll = torch.Tensor([0])
@@ -142,18 +144,14 @@ class ConstructionDataset(data.Dataset):
             if(self.classification):
                 bins = create_bins(self.num_angles)
                 indexed_yaw = get_bin(indexed_yaw, bins)
-            # indexed_orientation = torch.hstack([indexed_yaw, indexed_pitch]).unsqueeze(0)
+
                 indexed_orientation = torch.Tensor([indexed_yaw]).unsqueeze(0)
             else:
                 indexed_orientation = torch.Tensor([indexed_yaw]).unsqueeze(0)
             indexed_dims = torch.Tensor(self.lookup[indexed_clas]['dimensions'])
-            # print(new_vps_2d)
-            # new_vps_2d=new_vps_2d/np.array([width, height])
-            
-            # return (indexed_label, indexed_ori_img, indexed_img, new_vps_3d, new_vps_2d)
+
             return (indexed_crop, indexed_crop_tensor, indexed_box2d, indexed_clas, indexed_ori_img, indexed_img_tensor, new_vps_3d, new_vps_2d, indexed_orientation, indexed_dims)
         else:
-            # indexed_ori_img_path=self.images_paths[index]
             indexed_label = self.getlabel(self.labels_paths[index])
             indexed_img   = self.format_img(self.getimage(self.images_paths[index]))
             indexed_ori_img = self.getimage(self.images_paths[index])
@@ -163,20 +161,16 @@ class ConstructionDataset(data.Dataset):
         
     def getimage(self, imgpath):
         img = cv2.imread(imgpath)
-        # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        
-        
-        
+
         return np.array(img)
     
     
     def create_Dataset(self):
-        # [(train/test/valid) / (images/labels)]
         flag=1
         for train_type in self.nameTraining:
             for imlab in self.nameData:
                 dir_to_make = os.path.join(self.filedir, self.moving_dir, imlab, train_type)
-                # dir_to_make = os.path.join(self.moving_dir, imlab, train_type)
+
                 if not os.path.exists(dir_to_make):
                     os.makedirs(dir_to_make)
                     flag=0
@@ -224,41 +218,24 @@ class ConstructionDataset(data.Dataset):
         print("Files copied")    
 
     def format_img(self,img,box_2d=None):
-        # temp_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         temp_img = cv2.resize(img, self.resize_size)/255.0
         temp_img = np.transpose(temp_img, (2,0,1))
         temp_img = torch.tensor(temp_img, dtype=torch.float32)
-        
-        # self.transform = transforms.Compose([
-        #     transforms.ToTensor(),
-        #     transforms.Resize(self.resize_size),
-        #     # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        # ])
-        
-        # return self.transform(img)
+
         return temp_img
     
     
     def format_crop(self,img,box_2d=None):
-        #Not called yet
-        # temp_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         temp_img = cv2.resize(img, self.crop_size)/255.0
         temp_img = np.transpose(temp_img, (2,0,1))
         temp_img = torch.tensor(temp_img, dtype=torch.float32)
-        
-        # self.transform = transforms.Compose([
-        #     transforms.ToTensor(),
-        #     transforms.Resize(self.resize_size),
-        #     # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        # ])
-        
-        # return self.transform(img)
+
         return temp_img
             
     def getcrop(self, imgpath, box2d):
         img = self.getimage(imgpath)
         size_img=np.shape(img)
-        # print(size_img)
+
         x_center=float(box2d[0])*size_img[1]
         y_center=float(box2d[1])*size_img[0]
         width=float(box2d[2])*size_img[1]
@@ -271,16 +248,15 @@ class ConstructionDataset(data.Dataset):
         crop = img[y_min:y_max, x_min:x_max]
         
         crop_resize = cv2.resize(src = crop, dsize=self.crop_size, interpolation=cv2.INTER_CUBIC)
-        # crop_resize = crop
+
         return np.array(crop_resize)
     
     def makelabel(self):
         for ind,labelpath in enumerate(self.labels_paths):
-            # print(labelpath)
+
             label = self.getlabel(labelpath)
             
             for obj in label:
-                # print(obj)
                 self.obj_list.append(obj)
                 self.ori_img_list.append(self.images_paths[ind])
         
@@ -304,8 +280,6 @@ class ConstructionDataset(data.Dataset):
             obj_features.append((clas, [x_center,y_center,width,height]))
             
         return obj_features
-        # return clas_list, box2d_list
-        # print(lines)
 
 
 

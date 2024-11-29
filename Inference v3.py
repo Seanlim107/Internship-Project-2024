@@ -187,23 +187,13 @@ def main(config):
                   worker_3d_coords = coord_worker
                   hazard_3d_coords = coord_non
                   distance = estimate_distance_centers_3d(worker_3d_coords, hazard_3d_coords, dim)
-                
-                # print(f'3D Coordinates of worker: ,{worker[3]:.2f},{worker_3d_coords}')
-                # print(f'3D Coordinates of , {hazard}: , {nonworker[3]:.2f}, {hazard_3d_coords}')
-                # print(f'Distance = {distance:.2f}m')
-                
+
                 if(distance < safe_distancing):
                   mode = np.digitize(distance, danger_levels, right=True)
-                  
-                  # print(f'Unsafe distancing between worker:{conf_worker:.2f} and {hazard}:{conf_non:.2f}, Distance={distance:.2f}m')
-                  # print('3D Coordinates of worker: ',conf_worker,worker_3d_coords)
-                  # print('3D Coordinates of ', hazard,': ', conf_non, hazard_3d_coords)
-                  
+
                   flag=1
                   refine_regressed_3d_bbox(img, proj_matrix, box_2d_worker, dim_worker, alpha_worker, theta_ray, coord_worker, mode=mode, clip=clip_boxes, beta=beta)
                   refine_regressed_3d_bbox(img, proj_matrix, box_2d_non, dim_non, alpha_non, theta_ray, coord_non, mode=mode, clip=clip_boxes, beta=beta)
-                
-                # draw_lines(box_3d_worker, box_3d_non, img, distance, debug=debug, safe_distancing=safe_distancing)
 
       # Get inference time
       time_set += time.time() - starttime

@@ -4,18 +4,24 @@ from torchvision.models import (efficientnet_b0, efficientnet_b2, efficientnet_b
                                 mobilenet_v2, mobilenet_v3_small, mobilenet_v3_large, 
                                 shufflenet_v2_x1_5, googlenet)
 
+####################################################################################################################################################################################################
+# The following code contains the network architecture used for OriDim
+####################################################################################################################################################################################################
+
 class BB_Guesser_Model(nn.Module):
     def __init__(self, config, backbone_name=None, proposals=2, angles=1, resize_size=224, orient_neurons=128, dim_neurons=256):
         super(BB_Guesser_Model, self).__init__()
         self.classification = config['Models']['3d_guesser_classification']
         if(self.classification):
-            self.sincos = config['Models']['3d_guesser_proposals']
+            # sincos = number of angles used to regress (Future work for regressing sin(theta) or cos(theta) instead of regressing theta itself)
+            self.sincos = config['Models']['3d_guesser_proposals'] 
+            # number of bins
             self.proposals=proposals
         else:
-            self.sincos = 1
-            self.proposals = proposals
+            self.sincos = 1 
+            self.proposals = proposals 
             
-        
+        # image shape (NxN)
         self.resize_size = resize_size
 
         # Map backbone names to model constructors and feature extraction points

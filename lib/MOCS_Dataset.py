@@ -84,27 +84,19 @@ class MOCSDataset(data.Dataset):
 
                     labels.append({'class_id': class_id, 'polygon': polygon})
 
-        
-
         # Apply transformations
         if self.transform:
-            # image = self.transform(image)
             transform_image = self.transform(image)
-            
-        # else:
-        
         # Create target dictionary
         target = {
             'labels': torch.tensor([label['class_id'] for label in labels], dtype=torch.int64),
             'polygons': [label['polygon'] for label in labels],
-            # 'image_id': torch.tensor([idx]),
             'orig_size': torch.tensor(image.shape[1:]),
             "imgfilename": img_path, 
             "labelfilename": label_path
         }
         
         return image, target, transform_image
-        # return image, target
 
     def prep_yolo_seg(self):
         self.makedirs()
@@ -119,7 +111,7 @@ class MOCSDataset(data.Dataset):
             output_dir_image = os.path.join(self.filedir, self.movingdir, curr_im, curr_type)
             local_labels_dir = os.path.join(self.filedir, self.mainpath, instances_dir_name_label)
             output_dir_label = os.path.join(self.filedir, self.movingdir, curr_lb, curr_type)
-            # print(local_labels_dir)
+
             if(curr_split == 'test'):
                 dir_name_image = os.path.join(f"instances_{curr_split}", f"instances_{curr_split}")
                 output_dir_image = os.path.join(self.filedir, self.movingdir, curr_im, curr_type)
@@ -131,7 +123,6 @@ class MOCSDataset(data.Dataset):
             
             with open(local_labels_dir) as json_file:
                 json_data = json.load(json_file)
-
 
             # Convert JSON to YOLO segmentation format
             self.prepare_label_seg(json_data, output_dir_label, input_dir_image, output_dir_image)
@@ -148,8 +139,7 @@ class MOCSDataset(data.Dataset):
         return [
             coords[i] / img_width if i % 2 == 0 else coords[i] / img_height for i in range(len(coords))
         ]
-        
-    # def get_label(self, json_data, output_dir)
+
 
     def prepare_label_seg(self, json_data, output_dir_label, input_dir_image, output_dir_image):
         
@@ -159,7 +149,6 @@ class MOCSDataset(data.Dataset):
         for image in tqdm(json_data['images']):
             corrupt_flag = 0
             img_id = image['id']
-            # true_img_id = int(os.path.splitext(image['file_name'])[0])
             
             img_width = image['width']
             img_height = image['height']
@@ -177,8 +166,6 @@ class MOCSDataset(data.Dataset):
                         category_idx = categories[ann['category_id']]
                         segmentation = ann['segmentation'][0]  # Assuming single polygon per annotation
                         normalized_seg = self.normalize_coordinates(segmentation, img_width, img_height)
-                        
-                        
                         
                         if all(coord <= 1 and coord >= 0 for coord in normalized_seg):
                             self.create_yolo_labels(output_path, category_idx, normalized_seg, f)
@@ -253,20 +240,3 @@ class MOCSDataset(data.Dataset):
         
         # Write class index and normalized coordinates
         f.write(f"{category_idx} " + " ".join([f"{coord:.6f}" for coord in normalized_seg]) + "\n")
-
-
-# # Usage example:
-# if __name__ == "__main__":
-#     config = {
-#         'Dataset': {'MOCS': {'moving_dir': 'path/to/moving/dir', 'main_dir': 'path/to/main/dir'}},
-#         'General': {'resize_size': 640, 'crop_size': 512},
-#         'Classes': {}  # Add your class lookup here if needed
-#     }
-#     dataset = MOCSDataset(config, split='train')
-#     print(f"Dataset size: {len(dataset)}")
-    
-#     # Get the first item
-#     image, target = dataset[0]
-#     print(f"Image shape: {image.shape}")
-#     print(f"Number of objects: {len(target['labels'])}")
-#     print(f"Labels: {target['labels']}")

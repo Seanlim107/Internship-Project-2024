@@ -56,9 +56,7 @@ class Camera:
         
         # Find depth relative to heights and widths and average them
         depth_y = self.fy * real_height / pixel_height
-        # depth_x = self.fx * real_len / pixel_length
-        
-        # depth = (depth_x + depth_y)/2
+
         depth = depth_y
         
         return depth
@@ -66,15 +64,13 @@ class Camera:
     def get_scale(self,img_xyxy, obj_dim):
         # Finds distance between a detected object and the camera
         xmin,ymin,xmax,ymax = img_xyxy[:4]
-        # pixel_length = abs(xmax-xmin)
+
         pixel_height = abs(ymax - ymin)
         real_len, real_width, real_height = obj_dim
         
         # Find depth relative to heights and widths and average them
         scale = real_height / pixel_height
-        # depth_x = self.fx * real_len / pixel_length
-        
-        
+
         return scale
     
     def find_real_coords(self, img_xyxy, obj_dim):

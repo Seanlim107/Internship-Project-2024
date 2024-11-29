@@ -6,7 +6,7 @@ Baseline.zip
 /datasets_yolo
 /datasets
 /datasets_yolobb
-/checkpoints
+# /checkpoints
 /Construction Dataset
 /sh_scripts_hyperion
 /Chronic Wound Dataset

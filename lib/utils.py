@@ -16,9 +16,10 @@ def get_scale(real_height, box_height):
     return real_height/box_height
     
 def estimate_distance_2d(img1_xyxy, img2_xyxy, mode=0):
+    #__________________________________________________#
     # xyxy in the format of (xmin, ymin, xmax, ymax)
     # Returns minimum distance in pixel length
-    #_______________________________________________________________________#
+    #__________________________________________________#
     
     # Check overlapping
     overlap = overlap_check(img1_xyxy,img2_xyxy)
@@ -77,6 +78,7 @@ def clamp_coords(val, min_val, max_val):
 
 
 def estimate_distance_centers_3d(img1_xyz, img2_xyz, mode=0, dim1=None, dim2=None):
+    #_______________________________________________________________________#
     # xyxy in the format of (xmin, ymin, xmax, ymax)
     # Returns minimum distance in pixel length
     #_______________________________________________________________________#
@@ -103,10 +105,10 @@ def estimate_distance_centers_3d(img1_xyz, img2_xyz, mode=0, dim1=None, dim2=Non
         closest_point_img1 = img1_xyz
         closest_point_img2 = img2_xyz
     distance = np.linalg.norm(closest_point_img1 - closest_point_img2)
-    # distance = np.sum((img1_xyz-img2_xyz - lengths)**2, axis=0)
 
     return distance
 
+# Function for checking if boxes overlap (Used for traditional methods when two bounding boxes are too close to each other in which case distance is 0)
 def overlap_check(img1_xyxy, img2_xyxy):
     xmin1, ymin1, xmax1, ymax1 =img1_xyxy[:4]
     
@@ -123,6 +125,7 @@ def overlap_check(img1_xyxy, img2_xyxy):
     
     return [np.sum(horizontal_check)>1, np.sum(vertical_check)>1, np.sum(horizontal_check)>1 and np.sum(vertical_check)>1]
 
+# Function for drawing lines between two bounding boxes through the center
 def draw_lines(img1_xyxy, img2_xyxy, box, dist=None, debug=False, safe_distancing = 50):
     # Calculate the center points of the rectangles
     center1 = find_center(img1_xyxy)
@@ -130,36 +133,11 @@ def draw_lines(img1_xyxy, img2_xyxy, box, dist=None, debug=False, safe_distancin
     
     plot_box = (center1[0],center1[1], center2[0], center2[1])
     
-    
-
-    # Plot between edges (TBD vs Plotting Center)
-    # xmin1, ymin1, xmax1, ymax1 =img1_xyxy[:4]
-    
-    # xmin2, ymin2, xmax2, ymax2 =img2_xyxy[:4]
-    
-    # if xmax1 < xmin2:  # Rectangle 1 is to the left of Rectangle 2
-    #     x1, y1 = xmax1, (ymin1 + ymax1) // 2
-    #     x2, y2 = xmin2, (ymin2 + ymax2) // 2
-    # elif xmin1 > xmax2:  # Rectangle 1 is to the right of Rectangle 2
-    #     x1, y1 = xmin1, (ymin1 + ymax1) // 2
-    #     x2, y2 = xmax2, (ymin2 + ymax2) // 2
-    # elif ymax1 < ymin2:  # Rectangle 1 is above Rectangle 2
-    #     x1, y1 = (xmin1 + xmax1) // 2, ymax1
-    #     x2, y2 = (xmin2 + xmax2) // 2, ymin2
-    # else:  # Rectangle 1 is below Rectangle 2
-    #     x1, y1 = (xmin1 + xmax1) // 2, ymin1
-    #     x2, y2 = (xmin2 + xmax2) // 2, ymax2
-        
-    # plot_box = (x1,y1,x2,y2)
-    
     if plot_box is not None:
         xmin= int(plot_box[0])
         ymin= int(plot_box[1])
         xmax= int(plot_box[2])
         ymax= int(plot_box[3])
-        
-        # print(xmin, xmax, ymin, ymax)
-            
             
         if(dist < safe_distancing):
             cv2.line(box, (xmin,ymin),(xmax,ymax), color=(0,0,0), thickness=2)
@@ -193,6 +171,7 @@ def draw_lines(img1_xyxy, img2_xyxy, box, dist=None, debug=False, safe_distancin
             
             cv2.putText(box, text, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 1)
         
+# Converts formatting of bounding box coordinates from (x,y,w,h) to (x1,y1,x2,y2)
 def find_xyxy(box):
     x_center, y_center, w, h = box
     x1 = x_center - w / 2
@@ -201,6 +180,7 @@ def find_xyxy(box):
     y2 = y_center + h / 2
     return [x1, y1, x2, y2]        
         
+# Function for returning center of bounding box assuming (X1,Y1,X2,Y2) formatting
 def find_center(box):
     xmin=box[0]
     ymin=box[1]
@@ -210,6 +190,7 @@ def find_center(box):
     center = ((xmin + xmax) // 2, (ymin + ymax) // 2)
     return center
 
+# Function for returning angle between two bounding boxes
 def get_angle(point1, point2):
     # Returns angle between point 1 (xy) and point 2 (xy) and returns angle in radians
     angle = torch.arctan((point1[1]-point2[1]) / (point1[0]-point2[0]))
@@ -244,10 +225,12 @@ def load_checkpoint(model, file_name, optimizer):
     
     return best_loss, epoch
 
+# Create bins for angles
 def create_bins(num_bins):
     bins = np.array([2*np.pi/num_bins*ind for ind in range(num_bins)])
     return bins
 
+# Use corresponding bins given logit
 def get_bin(val, bins, label=None):
     binned_logit = np.digitize(val, bins, right=False)
     
