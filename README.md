@@ -30,33 +30,19 @@ The dataset used is a custom dataset provided by AITIS concerning objects in a C
 
 ## Getting Started
 
-### Prerequisites
-
-* The necessary files required to run the project are available in the file requirements.txt. Simply run the following command:
-  pip install -f requirements.txt
-
 ### Installation
 
-_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
+1. Clone the repo
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
-   ```sh
-   git clone https://github.com/github_username/repo_name.git
    ```
-3. Install NPM packages
-   ```sh
-   npm install
+   git clone https://github.com/Seanlim107/Internship-Project-2024
    ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
+2. Install packages
+
    ```
-5. Change git remote url to avoid accidental pushes to base project
-   ```sh
-   git remote set-url origin github_username/repo_name
-   git remote -v # confirm the changes
+   pip install -r requirements.txt
    ```
+3. Download checkpoints [here](https://drive.google.com/drive/u/1/folders/10OclwYqrT4uszMrPMUZ6xA7OPZUfyrtg) and put the models in the **checkpoints** folder
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -64,31 +50,40 @@ _Below is an example of how you can instruct your audience on installing and set
 
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+The following section discusses the files that can be run to test the performance of the OriDim model and its variants. All test cases can be run simply from Inference v1.py, Inference v2.py and Inference v3.py
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+The file Inference v1.py showcases the performance of traditional methods being 2D object detection e.g. [Social Distancing Detector](https://pyimagesearch.com/2020/06/01/opencv-social-distancing-detector/) and this [Distance Measuring Tool](https://pyimagesearch.com/2016/04/04/measuring-distance-between-objects-in-an-image-with-opencv/https:/)
+
+The file Inference v2.py tests the performance of the OriDim model on the ACSD dataset, however this file is currently unavailable due to the lack of availability of the ACSD dataset from AITIS due to privacy and security reasons.
+
+The file Inference v3.py instead is an alternative to Inference v2.py which shows the works of the OriDim model on a custom made dataset with pictures taken manually from a high rise building on a construction site in the UK.
+
+Available configurations:
+
+
+|    | 3d_guesser_classification | 3d_guesser_proposals | 3d_guesser_backbone |
+| ---- | :-------------------------- | ---------------------- | --------------------- |
+| 1  | True                      | 8                    | efficientnet_b0     |
+| 2  | True                      | 32                   | efficientnet_b0     |
+| 3  | False                     | -                    | efficientnet_b0     |
+| 4  | True                      | 8                    | efficientnet_b2     |
+| 5  | True                      | 32                   | efficientnet_b2     |
+| 6  | False                     | -                    | efficientnet_b2     |
+| 7  | True                      | 8                    | MNASNet1_0          |
+| 8  | True                      | 32                   | MNASNet1_0          |
+| 9  | False                     | -                    | MNASNet1_0          |
+| 10 | True                      | 8                    | MobileNet_V2        |
+| 11 | True                      | 16                   | MobileNet_V2        |
+| 12 | True                      | 32                   | MobileNet_V2        |
+| 13 | False                     | -                    | MobileNet_V2        |
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- ROADMAP -->
 
-## Roadmap
+## <!-- CONTRIBUTING -->
 
-- [X] Add Changelog
-- [X] Add back to top links
-- [ ] Add Additional Templates w/ Examples
-- [ ] Add "components" document to easily copy & paste sections of the readme
-- [ ] Multi-language Support
-  - [ ] Chinese
-  - [ ] Spanish
-
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a full list of proposed features (and known issues).
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- CONTRIBUTING -->
-
-## Contributing
+## Contributions
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
@@ -102,10 +97,6 @@ Don't forget to give the project a star! Thanks again!
 5. Open a Pull Request
 
 ### Top contributors:
-
-<a href="https://github.com/othneildrew/Best-README-Template/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=othneildrew/Best-README-Template" alt="contrib.rocks image" />
-</a>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -121,9 +112,9 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 ## Contact
 
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
+Sean Lim  - seanlim1071@gmail.com
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
+Project Link: [https://github.com/Seanlim107/Internship-Project-2024/tree/main/runshttps://github.com/your_username/repo_nam](https://github.com/Seanlim107/Internship-Project-2024/tree/main/runshttps://github.com/your_username/repo_nam)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
