@@ -18,7 +18,8 @@
 
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+
+[20241202_153721_aitisoutside1.png](assets/20241202_153721_aitisoutside1.png)
 
 The following GitHub repository highlights the work done by me (Sean Lim) during my internship-dissertation program at City, University of London under the company AITIS (AITI Solutions).
 
@@ -77,9 +78,7 @@ Available configurations:
 | 12 | True                      | 32                   | MobileNet_V2        |
 | 13 | False                     | -                    | MobileNet_V2        |
 
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 ## <!-- CONTRIBUTING -->
 
