@@ -18,8 +18,8 @@
 
 ## About The Project
 
+![20241202_153721_aitisoutside1](https://github.com/user-attachments/assets/f103f829-2b7d-4dab-82ee-f53d2d6faf74)
 
-[20241202_153721_aitisoutside1.png](assets/20241202_153721_aitisoutside1.png)
 
 The following GitHub repository highlights the work done by me (Sean Lim) during my internship-dissertation program at City, University of London under the company AITIS (AITI Solutions).
 
